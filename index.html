@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>주인님의 테트리스</title>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+KR:wght@400;700&display=swap');
+
+        :root {
+            --bg: #0f0f17;
+            --panel: #1a1a2e;
+            --border: #2a2a4a;
+            --accent: #4da6ff;
+            --accent2: #ff4d8d;
+            --green: #00ff88;
+            --text: #e0e0ff;
+            --subtext: #7070a0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Noto Sans KR', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* ===== 메뉴 ===== */
+        #menu-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            padding: 20px;
+        }
+
+        .menu-box {
+            background: var(--panel);
+            padding: 28px 24px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            text-align: center;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .menu-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 16px;
+            color: var(--accent);
+            margin-bottom: 6px;
+            text-shadow: 0 0 20px rgba(77,166,255,0.5);
+        }
+
+        .menu-sub {
+            font-size: 11px;
+            color: var(--subtext);
+            margin-bottom: 24px;
+        }
+
+        .main-btn {
+            display: block;
+            padding: 14px;
+            font-size: 15px;
+            font-family: 'Noto Sans KR', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            margin: 8px 0;
+            width: 100%;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .main-btn:active { opacity: 0.75; }
+        .btn-single { background: linear-gradient(135deg, #ff8c00, #ffd700); color: #1a1a00; }
+        .btn-create { background: linear-gradient(135deg, var(--accent), #7b5ea7); }
+        .btn-gray   { background: #2a2a3a; font-size: 13px; padding: 10px; color: #aaa; }
+
+        .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+        .join-row {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .room-input {
+            flex: 1;
+            min-width: 0;
+            padding: 12px 8px;
+            font-size: 20px;
+            font-family: 'Press Start 2P', monospace;
+            text-transform: uppercase;
+            text-align: center;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+            outline: none;
+            background: #0f0f1f;
+            color: var(--accent);
+            letter-spacing: 4px;
+            -webkit-appearance: none;
+        }
+        .room-input:focus { border-color: var(--accent); }
+
+        .join-btn {
+            flex-shrink: 0;
+            padding: 12px 14px;
+            background: var(--accent2);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .join-btn:active { opacity: 0.75; }
+
+        #waiting-room { display: none; }
+
+        .room-code-display {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 26px;
+            color: var(--green);
+            letter-spacing: 8px;
+            margin: 12px 0;
+            text-shadow: 0 0 20px rgba(0,255,136,0.5);
+        }
+
+        .waiting-hint {
+            font-size: 12px;
+            color: var(--subtext);
+            margin-bottom: 16px;
+            line-height: 1.7;
+        }
+
+        .copy-btn {
+            display: block;
+            padding: 12px;
+            background: #1e3a2a;
+            border: 1px solid var(--green);
+            border-radius: 10px;
+            color: var(--green);
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 8px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .copy-btn:active { opacity: 0.75; }
+
+        .loader {
+            margin: 14px auto;
+            width: 26px; height: 26px;
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ===== 게임 화면 ===== */
+        .game-wrapper {
+            display: none;
+            flex-direction: row;
+            gap: 8px;
+            align-items: flex-start;
+            justify-content: center;
+            width: 100vw;
+            padding: 4px;
+            flex-shrink: 0;
+        }
+
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .box {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .box-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 6px;
+            margin-bottom: 6px;
+            color: var(--subtext);
+            letter-spacing: 1px;
+        }
+
+        .stats-value {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            color: var(--accent);
+        }
+
+        #board {
+            display: block;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+
+        #opponent-panel { display: none; }
+        #opponent-board {
+            display: block;
+            border: 1px solid #552233;
+            border-radius: 4px;
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10,10,20,0.95);
+            padding: 20px;
+            border-radius: 14px;
+            text-align: center;
+            display: none;
+            border: 1px solid var(--border);
+            z-index: 100;
+            white-space: nowrap;
+        }
+
+        .game-result-text {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 12px;
+            margin-bottom: 16px;
+            line-height: 1.8;
+        }
+
+        /* ===== 모바일 컨트롤 ===== */
+        .mobile-controls {
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0 16px;
+            margin-top: 8px;
+            flex-shrink: 0;
+        }
+
+        .d-pad { position: relative; width: 120px; height: 120px; }
+        .d-btn {
+            position: absolute;
+            width: 38px; height: 38px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid #333355;
+            border-radius: 8px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 14px; color: #8888aa;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .d-btn:active { background: rgba(77,166,255,0.25); border-color: var(--accent); color: var(--accent); }
+        .d-up    { top: 0;    left: 41px; }
+        .d-left  { top: 41px; left: 0;   }
+        .d-down  { top: 82px; left: 41px; }
+        .d-right { top: 41px; left: 82px; }
+
+        .action-pad { display: flex; justify-content: center; align-items: center; width: 120px; height: 120px; }
+        .btn-drop {
+            width: 76px; height: 76px;
+            border-radius: 50%;
+            background: rgba(255,77,141,0.1);
+            border: 2px solid var(--accent2);
+            color: var(--accent2);
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+            display: flex; justify-content: center; align-items: center;
+            text-align: center;
+            line-height: 1.5;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn-drop:active { background: rgba(255,77,141,0.3); }
+
+        /* ===== 치트 존 ===== */
+        .cheat-zone {
+            position: fixed;
+            top: 0;
+            width: 80px; height: 80px;
+            z-index: 9999;
+            opacity: 0;
+        }
+        #cheat-left  { left: 0; }
+        #cheat-right { right: 0; display: none; }
+
+        .cheat-indicator {
+            position: fixed;
+            top: 10px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 7px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        #cheat-left-indicator  { left: 10px;  background: rgba(0,255,136,0.15);  color: var(--green);   border: 1px solid var(--green); }
+        #cheat-right-indicator { right: 10px; background: rgba(255,77,141,0.15); color: var(--accent2); border: 1px solid var(--accent2); }
+        .cheat-indicator.active { opacity: 1; }
+
+        .flash-overlay {
+            position: fixed; inset: 0;
+            pointer-events: none;
+            z-index: 998;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+        .flash-overlay.show { opacity: 1; }
+
+        #reverse-notice {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            color: var(--accent2);
+            background: rgba(255,77,141,0.15);
+            border: 1px solid var(--accent2);
+            padding: 8px 14px;
+            border-radius: 8px;
+            z-index: 500;
+            display: none;
+            animation: blink 1s infinite;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+        #toast {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--panel);
+            border: 1px solid var(--green);
+            color: var(--green);
+            font-size: 13px;
+            font-weight: 700;
+            padding: 10px 20px;
+            border-radius: 20px;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+        #toast.show { opacity: 1; }
+
+        #status-bar {
+            position: fixed;
+            bottom: 8px;
+            font-size: 10px;
+            color: var(--subtext);
+            z-index: 10;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+<div id="status-bar">환영합니다!</div>
+<div id="toast"></div>
+
+<div class="flash-overlay" id="flash-blue"  style="background:rgba(0,200,255,0.15);"></div>
+<div class="flash-overlay" id="flash-red"   style="background:rgba(255,60,60,0.15);"></div>
+<div class="flash-overlay" id="flash-green" style="background:rgba(0,255,100,0.15);"></div>
+
+<div class="cheat-indicator" id="cheat-left-indicator">I-BLOCK ON</div>
+<div class="cheat-indicator" id="cheat-right-indicator">REVERSE ON</div>
+<div id="reverse-notice">⚠ 조작 반전 중!</div>
+
+<div id="cheat-left"  class="cheat-zone"></div>
+<div id="cheat-right" class="cheat-zone"></div>
+
+<!-- 메뉴 -->
+<div id="menu-screen">
+    <div class="menu-box">
+        <div class="menu-title">TETRIS</div>
+        <div class="menu-sub">주인님의 테트리스 v2.0</div>
+
+        <div id="main-buttons">
+            <button class="main-btn btn-single" onclick="startSinglePlayer()">👤 혼자 하기</button>
+            <button class="main-btn btn-create" onclick="createMultiRoom()">⚔️ 방 만들기</button>
+            <hr class="divider">
+            <div class="join-row">
+                <input type="text" id="room-code-input" class="room-input" maxlength="4" placeholder="CODE">
+                <button class="join-btn" onclick="joinMultiRoom()">입장</button>
+            </div>
+        </div>
+
+        <div id="waiting-room">
+            <p style="font-size:12px;color:var(--subtext);margin-bottom:4px;">방 코드</p>
+            <div class="room-code-display" id="display-room-code">----</div>
+            <p class="waiting-hint">친구에게 링크를 공유하거나<br>코드를 알려주세요!</p>
+            <button class="copy-btn" onclick="copyRoomLink()">🔗 링크 복사하기</button>
+            <div class="loader"></div>
+            <p style="font-size:11px;color:var(--subtext);">상대방 연결 대기 중...</p>
+            <button class="main-btn btn-gray" onclick="goMainMenu()" style="margin-top:14px;">취소</button>
+        </div>
+    </div>
+</div>
+
+<!-- 게임 -->
+<div class="game-wrapper" id="game-wrapper">
+    <div class="side-panel" id="opponent-panel">
+        <div class="box">
+            <div class="box-title" style="color:#ff6666;">ENEMY</div>
+            <canvas id="opponent-board"></canvas>
+        </div>
+    </div>
+
+    <div style="position:relative;flex-shrink:0;">
+        <canvas id="board"></canvas>
+        <div id="gameOverScreen" class="game-over">
+            <div class="game-result-text" id="game-result-text">GAME OVER</div>
+            <button class="main-btn btn-gray" onclick="goMainMenu()" style="width:auto;padding:10px 20px;font-size:12px;">메인 메뉴</button>
+        </div>
+    </div>
+
+    <div class="side-panel" id="my-panel">
+        <div class="box">
+            <div class="box-title">NEXT</div>
+            <canvas id="next"></canvas>
+        </div>
+        <div class="box">
+            <div class="box-title">SCORE</div>
+            <div id="score" class="stats-value">0</div>
+        </div>
+        <div class="box">
+            <div class="box-title">LINES</div>
+            <div id="lines" class="stats-value">0</div>
+        </div>
+    </div>
+</div>
+
+<!-- 모바일 컨트롤 -->
+<div class="mobile-controls" id="mobile-controls">
+    <div class="d-pad">
+        <div class="d-btn d-up"    id="btn-up">▲</div>
+        <div class="d-btn d-left"  id="btn-left">◀</div>
+        <div class="d-btn d-down"  id="btn-down">▼</div>
+        <div class="d-btn d-right" id="btn-right">▶</div>
+    </div>
+    <div class="action-pad">
+        <div class="btn-drop" id="btn-hardDrop">HARD<br>DROP</div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// 상수
+// ============================================================
+const COLS = 10, ROWS = 20;
+
+const COLORS = [
+    null,
+    '#00FFFF','#3355FF','#FF8800','#FFFF00',
+    '#00FF44','#CC44FF','#FF3333','#555566',
+];
+
+const SHAPES = [
+    [],
+    [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]],
+    [[2,0,0],[2,2,2],[0,0,0]],
+    [[0,0,3],[3,3,3],[0,0,0]],
+    [[4,4],[4,4]],
+    [[0,5,5],[5,5,0],[0,0,0]],
+    [[0,6,0],[6,6,6],[0,0,0]],
+    [[7,7,0],[0,7,7],[0,0,0]],
+];
+
+// ============================================================
+// 캔버스 & 크기 계산
+// ============================================================
+const boardCanvas = document.getElementById('board');
+const ctx         = boardCanvas.getContext('2d');
+const nextCanvas  = document.getElementById('next');
+const ctxNext     = nextCanvas.getContext('2d');
+const oppCanvas   = document.getElementById('opponent-board');
+const ctxOpp      = oppCanvas.getContext('2d');
+
+let BLOCK = 28; // 기본값, initCanvases에서 재계산
+
+function calcBlock(isMulti) {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const ctrlH  = 136;
+    const padV   = 12;
+    const padH   = 8;
+
+    const availH = vh - ctrlH - padV * 2;
+
+    // 싱글: 사이드패널 2개
+    // 멀티: 사이드패널 3개 (상대 포함)
+    const panelCount = isMulti ? 3 : 2;
+    const panelW = 58;
+    const gaps   = padH * (panelCount + 1);
+    const boardMaxW = vw - panelW * panelCount - gaps;
+
+    let b = Math.floor(Math.min(availH / ROWS, boardMaxW / COLS));
+    return Math.max(b, 16);
+}
+
+function initCanvases(isMulti) {
+    BLOCK = calcBlock(isMulti);
+
+    boardCanvas.width  = BLOCK * COLS;
+    boardCanvas.height = BLOCK * ROWS;
+
+    const ns = Math.max(Math.floor(BLOCK * 0.55) * 4, 48);
+    nextCanvas.width  = ns;
+    nextCanvas.height = ns;
+
+    if (isMulti) {
+        const ob = Math.max(Math.floor(BLOCK * 0.4), 5);
+        oppCanvas.width  = ob * COLS;
+        oppCanvas.height = ob * ROWS;
+    }
+}
+
+// ============================================================
+// 게임 상태
+// ============================================================
+let board         = createMatrix(COLS, ROWS);
+let opponentBoard = createMatrix(COLS, ROWS);
+let player        = { pos:{x:0,y:0}, matrix:null };
+let nextPiece     = null;
+
+let score = 0, linesCleared = 0;
+let dropCounter = 0, dropInterval = 1000, lastTime = 0;
+let isGameOver = true, isMultiplayer = false, animationId;
+let syncIntervalId = null;
+let pendingGarbage = 0;
+
+let isIBlockCheat      = false;
+let isOpponentReversed = false;
+let isControlReversed  = false;
+
+function createMatrix(w, h) {
+    return Array.from({length:h}, () => new Array(w).fill(0));
+}
+
+// ============================================================
+// P2P
+// ============================================================
+let peer = null, conn = null, currentRoomCode = '';
+
+function getRoomCodeFromURL() {
+    try {
+        const p = new URLSearchParams(window.location.search);
+        const c = p.get('room');
+        return c ? c.toUpperCase() : null;
+    } catch(e) { return null; }
+}
+
+function generateRoomCode() {
+    const ch = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    return Array.from({length:4}, () => ch[Math.floor(Math.random()*ch.length)]).join('');
+}
+
+function getRoomPeerId(code) { return 'marineno5-tetris-v2-' + code; }
+
+function showToast(msg, color) {
+    const t = document.getElementById('toast');
+    t.innerText = msg;
+    t.style.borderColor = color || 'var(--green)';
+    t.style.color = color || 'var(--green)';
+    t.classList.add('show');
+    clearTimeout(t._t);
+    t._t = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function copyRoomLink() {
+    const url = 'https://marineno5.github.io/tetris/?room=' + currentRoomCode;
+    const doFallback = () => {
+        const el = document.createElement('textarea');
+        el.value = url; el.style.cssText = 'position:fixed;opacity:0';
+        document.body.appendChild(el);
+        el.focus(); el.select();
+        try { document.execCommand('copy'); showToast('🔗 링크 복사됨!'); }
+        catch(e) { showToast('복사 실패', 'var(--accent2)'); }
+        document.body.removeChild(el);
+    };
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => showToast('🔗 링크 복사됨!')).catch(doFallback);
+    } else { doFallback(); }
+}
+
+function startSinglePlayer() {
+    isMultiplayer = false;
+    document.getElementById('opponent-panel').style.display = 'none';
+    document.getElementById('cheat-right').style.display = 'none';
+    startGameUI();
+}
+
+function createMultiRoom() {
+    currentRoomCode = generateRoomCode();
+    document.getElementById('status-bar').innerText = '서버 연결 중...';
+    if (peer) { try { peer.destroy(); } catch(e){} }
+
+    peer = new Peer(getRoomPeerId(currentRoomCode));
+
+    peer.on('open', () => {
+        document.getElementById('main-buttons').style.display = 'none';
+        document.getElementById('waiting-room').style.display = 'block';
+        document.getElementById('display-room-code').innerText = currentRoomCode;
+        document.getElementById('status-bar').innerText = '상대를 기다립니다...';
+    });
+
+    peer.on('connection', (c) => { conn = c; setupConnection(c); });
+
+    peer.on('error', (err) => {
+        if (err.type === 'unavailable-id') {
+            goMainMenu(); setTimeout(createMultiRoom, 200);
+        } else {
+            showToast('연결 오류: ' + err.type, 'var(--accent2)');
+            goMainMenu();
+        }
+    });
+}
+
+function joinMultiRoom() {
+    const code = document.getElementById('room-code-input').value.trim().toUpperCase();
+    if (code.length !== 4) { showToast('4자리 코드를 입력하세요', 'var(--accent2)'); return; }
+
+    document.getElementById('status-bar').innerText = '연결 중...';
+    if (peer) { try { peer.destroy(); } catch(e){} }
+    peer = new Peer();
+
+    peer.on('open', () => {
+        conn = peer.connect(getRoomPeerId(code), { reliable: true });
+        let opened = false;
+
+        conn.on('open', () => {
+            opened = true;
+            currentRoomCode = code;
+            setupConnection(conn);
+        });
+
+        conn.on('error', () => {
+            if (!opened) { showToast('연결 실패! 코드를 확인하세요', 'var(--accent2)'); goMainMenu(); }
+        });
+
+        setTimeout(() => {
+            if (!opened && !isMultiplayer) {
+                showToast('연결 실패! 코드를 확인하세요', 'var(--accent2)');
+                goMainMenu();
+            }
+        }, 6000);
+    });
+
+    peer.on('error', () => { showToast('방을 찾을 수 없습니다', 'var(--accent2)'); goMainMenu(); });
+}
+
+function setupConnection(connection) {
+    isMultiplayer = true;
+
+    connection.on('data', (data) => {
+        if      (data.type === 'board')      { opponentBoard = data.board; }
+        else if (data.type === 'garbage')    { pendingGarbage += data.amount; }
+        else if (data.type === 'gameover')   { triggerGameOver('🏆 승리!'); }
+        else if (data.type === 'reverse_on') {
+            isControlReversed = true;
+            document.getElementById('reverse-notice').style.display = 'block';
+            flash('red');
+        } else if (data.type === 'reverse_off') {
+            isControlReversed = false;
+            document.getElementById('reverse-notice').style.display = 'none';
+        }
+    });
+
+    connection.on('close', () => {
+        if (!isGameOver) { showToast('상대방이 나갔습니다', 'var(--accent2)'); setTimeout(goMainMenu, 1500); }
+    });
+
+    document.getElementById('opponent-panel').style.display = 'flex';
+    document.getElementById('cheat-right').style.display = 'block';
+    startGameUI();
+}
+
+function goMainMenu() {
+    isGameOver = true;
+    isIBlockCheat = false; isControlReversed = false; isOpponentReversed = false;
+    cancelAnimationFrame(animationId);
+    clearInterval(syncIntervalId);
+    if (conn) { try { conn.close(); } catch(e){} conn = null; }
+    if (peer) { try { peer.destroy(); } catch(e){} peer = null; }
+
+    document.getElementById('reverse-notice').style.display = 'none';
+    document.getElementById('cheat-left-indicator').classList.remove('active');
+    document.getElementById('cheat-right-indicator').classList.remove('active');
+    document.getElementById('menu-screen').style.display = 'flex';
+    document.getElementById('main-buttons').style.display = 'block';
+    document.getElementById('waiting-room').style.display = 'none';
+    document.getElementById('game-wrapper').style.display = 'none';
+    document.getElementById('mobile-controls').style.display = 'none';
+    document.getElementById('gameOverScreen').style.display = 'none';
+    document.getElementById('status-bar').innerText = '환영합니다!';
+}
+
+// ============================================================
+// 렌더링
+// ============================================================
+function drawBlock(context, px, py, colorIdx, bp, alpha) {
+    if (!colorIdx) return;
+    context.globalAlpha = alpha;
+    context.fillStyle = COLORS[colorIdx];
+    context.fillRect(px, py, bp, bp);
+    context.globalAlpha = alpha * 0.3;
+    context.fillStyle = '#fff';
+    context.fillRect(px, py, bp, bp * 0.14);
+    context.fillRect(px, py, bp * 0.14, bp);
+    context.globalAlpha = alpha * 0.2;
+    context.fillStyle = '#000';
+    context.fillRect(px, py + bp * 0.86, bp, bp * 0.14);
+    context.fillRect(px + bp * 0.86, py, bp * 0.14, bp);
+    context.globalAlpha = 1;
+}
+
+function drawMatrix(matrix, ox, oy, context, bp, alpha) {
+    matrix.forEach((row, y) => {
+        row.forEach((val, x) => {
+            if (val) drawBlock(context, (ox+x)*bp, (oy+y)*bp, val, bp, alpha||1);
+        });
+    });
+}
+
+function draw() {
+    const bp = BLOCK;
+    const bw = boardCanvas.width, bh = boardCanvas.height;
+
+    ctx.fillStyle = '#080810';
+    ctx.fillRect(0, 0, bw, bh);
+
+    // 그리드
+    ctx.strokeStyle = 'rgba(80,80,160,0.07)';
+    ctx.lineWidth = 0.5;
+    for (let x=0;x<=COLS;x++){ctx.beginPath();ctx.moveTo(x*bp,0);ctx.lineTo(x*bp,bh);ctx.stroke();}
+    for (let y=0;y<=ROWS;y++){ctx.beginPath();ctx.moveTo(0,y*bp);ctx.lineTo(bw,y*bp);ctx.stroke();}
+
+    drawMatrix(board, 0, 0, ctx, bp, 1);
+
+    if (player.matrix && !isGameOver) {
+        let gy = player.pos.y;
+        while (!collide(board,{matrix:player.matrix,pos:{x:player.pos.x,y:gy+1}})) gy++;
+        drawMatrix(player.matrix, player.pos.x, gy, ctx, bp, 0.15);
+        drawMatrix(player.matrix, player.pos.x, player.pos.y, ctx, bp, 1);
+    }
+
+    if (isMultiplayer) {
+        const ob = oppCanvas.width / COLS;
+        ctxOpp.fillStyle = '#100008';
+        ctxOpp.fillRect(0, 0, oppCanvas.width, oppCanvas.height);
+        drawMatrix(opponentBoard, 0, 0, ctxOpp, ob, 1);
+    }
+
+    drawNextPiece();
+}
+
+function drawNextPiece() {
+    const nw = nextCanvas.width, nh = nextCanvas.height;
+    ctxNext.fillStyle = '#1a1a2e';
+    ctxNext.fillRect(0, 0, nw, nh);
+    if (!nextPiece) return;
+    const nb = Math.floor(Math.min(nw,nh) / 4);
+    const pw = nextPiece.matrix[0].length, ph = nextPiece.matrix.length;
+    const ox = Math.floor((nw/nb - pw)/2);
+    const oy = Math.floor((nh/nb - ph)/2);
+    drawMatrix(nextPiece.matrix, ox, oy, ctxNext, nb, 1);
+}
+
+// ============================================================
+// 게임 로직
+// ============================================================
+function randomPiece() {
+    const id = isIBlockCheat ? 1 : (Math.floor(Math.random()*7)+1);
+    return { matrix: SHAPES[id].map(r=>[...r]), typeId: id };
+}
+
+function collide(board, player) {
+    const {matrix:m, pos:o} = player;
+    for (let y=0;y<m.length;y++)
+        for (let x=0;x<m[y].length;x++)
+            if (m[y][x] && (board[y+o.y] && board[y+o.y][x+o.x]) !== 0) return true;
+    return false;
+}
+
+function merge(board, player) {
+    player.matrix.forEach((row,y) => row.forEach((val,x) => {
+        if (val) board[y+player.pos.y][x+player.pos.x] = val;
+    }));
+}
+
+function arenaSweep() {
+    let n = 0;
+    for (let y=board.length-1; y>0; y--) {
+        if (board[y].every(v=>v!==0)) {
+            board.splice(y,1); board.unshift(new Array(COLS).fill(0)); y++; n++;
+        }
+    }
+    if (n > 0) {
+        score += [0,100,300,500,800][n] || n*100;
+        linesCleared += n;
+        dropInterval = Math.max(100, 1000 - Math.floor(linesCleared/10)*80);
+        updateScore();
+        if (isMultiplayer && n>=2) sendData({type:'garbage', amount:n-1});
+    }
+    if (pendingGarbage > 0) applyGarbage();
+}
+
+function applyGarbage() {
+    while (pendingGarbage > 0) {
+        board.shift();
+        const row = new Array(COLS).fill(8);
+        row[Math.floor(Math.random()*COLS)] = 0;
+        board.push(row);
+        pendingGarbage--;
+    }
+}
+
+function sendData(obj) { if (conn && conn.open) conn.send(obj); }
+function syncBoard()   { sendData({type:'board', board:board}); }
+
+function playerDrop() {
+    player.pos.y++;
+    if (collide(board,player)) {
+        player.pos.y--;
+        merge(board,player); playerReset(); arenaSweep();
+        if (isMultiplayer) syncBoard();
+    }
+    dropCounter = 0;
+}
+
+function playerHardDrop() {
+    while (!collide(board,player)) player.pos.y++;
+    player.pos.y--;
+    merge(board,player); playerReset(); arenaSweep();
+    dropCounter = 0;
+    if (isMultiplayer) syncBoard();
+}
+
+function playerMove(dir) {
+    const d = isControlReversed ? -dir : dir;
+    player.pos.x += d;
+    if (collide(board,player)) player.pos.x -= d;
+}
+
+function playerRotate() {
+    const saved = player.matrix.map(r=>[...r]);
+    const sx = player.pos.x;
+    rotate(player.matrix);
+    let off = 1;
+    while (collide(board,player)) {
+        player.pos.x += off;
+        off = -(off + (off>0?1:-1));
+        if (Math.abs(off) > player.matrix[0].length) { player.matrix=saved; player.pos.x=sx; return; }
+    }
+}
+
+function rotate(m) {
+    for (let y=0;y<m.length;y++) for (let x=0;x<y;x++) [m[x][y],m[y][x]]=[m[y][x],m[x][y]];
+    m.forEach(r=>r.reverse());
+}
+
+function playerReset() {
+    if (!nextPiece) nextPiece = randomPiece();
+    player.matrix = nextPiece.matrix;
+    player.pos.y  = 0;
+    player.pos.x  = Math.floor(COLS/2) - Math.floor(player.matrix[0].length/2);
+    nextPiece = randomPiece();
+    if (collide(board,player)) {
+        triggerGameOver(isMultiplayer ? '💀 패배...' : 'GAME OVER');
+        if (isMultiplayer) sendData({type:'gameover'});
+    }
+}
+
+function updateScore() {
+    document.getElementById('score').innerText = score;
+    document.getElementById('lines').innerText = linesCleared;
+}
+
+function triggerGameOver(msg) {
+    isGameOver = true;
+    cancelAnimationFrame(animationId);
+    clearInterval(syncIntervalId);
+    const t = document.getElementById('game-result-text');
+    t.innerText = msg;
+    t.style.color = msg.includes('승리') ? 'var(--accent)' : 'var(--accent2)';
+    document.getElementById('gameOverScreen').style.display = 'block';
+}
+
+function update(time=0) {
+    if (isGameOver) return;
+    const dt = time - lastTime; lastTime = time;
+    dropCounter += dt;
+    if (dropCounter > dropInterval) playerDrop();
+    draw();
+    animationId = requestAnimationFrame(update);
+}
+
+function handleAction(action) {
+    if (isGameOver) return;
+    switch(action) {
+        case 'left':     playerMove(-1);   break;
+        case 'right':    playerMove(1);    break;
+        case 'down':     playerDrop();     break;
+        case 'rotate':   playerRotate();   break;
+        case 'hardDrop': playerHardDrop(); break;
+    }
+}
+
+function flash(color, dur) {
+    const el = document.getElementById('flash-'+color);
+    if (!el) return;
+    el.classList.add('show');
+    setTimeout(()=>el.classList.remove('show'), dur||200);
+}
+
+// ============================================================
+// 치트
+// ============================================================
+let leftTapCount=0, leftTapTimer=null;
+
+function toggleIBlockCheat() {
+    if (isGameOver) return;
+    isIBlockCheat = !isIBlockCheat;
+    const ind = document.getElementById('cheat-left-indicator');
+    ind.innerText = isIBlockCheat ? 'I-BLOCK ON' : 'I-BLOCK OFF';
+    ind.classList.toggle('active', isIBlockCheat);
+    flash('blue');
+    if (isIBlockCheat) { nextPiece = randomPiece(); drawNextPiece(); }
+}
+
+const handleLeftCheat = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    leftTapCount++;
+    clearTimeout(leftTapTimer);
+    if (leftTapCount >= 3) { toggleIBlockCheat(); leftTapCount = 0; }
+    else leftTapTimer = setTimeout(()=>{ leftTapCount=0; }, 800);
+};
+document.getElementById('cheat-left').addEventListener('touchstart', handleLeftCheat, {passive:false});
+document.getElementById('cheat-left').addEventListener('mousedown',  handleLeftCheat);
+
+let rightTapCount=0, rightTapTimer=null;
+
+function toggleReverseCheat() {
+    if (isGameOver || !isMultiplayer) return;
+    isOpponentReversed = !isOpponentReversed;
+    const ind = document.getElementById('cheat-right-indicator');
+    ind.innerText = isOpponentReversed ? 'REVERSE ON' : 'REVERSE OFF';
+    ind.classList.toggle('active', isOpponentReversed);
+    sendData({type: isOpponentReversed ? 'reverse_on' : 'reverse_off'});
+    flash('green');
+}
+
+const handleRightCheat = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    rightTapCount++;
+    clearTimeout(rightTapTimer);
+    if (rightTapCount >= 3) { toggleReverseCheat(); rightTapCount = 0; }
+    else rightTapTimer = setTimeout(()=>{ rightTapCount=0; }, 800);
+};
+document.getElementById('cheat-right').addEventListener('touchstart', handleRightCheat, {passive:false});
+document.getElementById('cheat-right').addEventListener('mousedown',  handleRightCheat);
+
+// ============================================================
+// 컨트롤러
+// ============================================================
+document.addEventListener('keydown', e => {
+    if ([32,37,38,39,40].includes(e.keyCode)) e.preventDefault();
+    const map = {37:'left',39:'right',40:'down',38:'rotate',32:'hardDrop'};
+    if (map[e.keyCode]) handleAction(map[e.keyCode]);
+});
+
+const setupBtn = (id, action) => {
+    const btn = document.getElementById(id); if (!btn) return;
+    btn.addEventListener('touchstart', e=>{e.preventDefault();handleAction(action);},{passive:false});
+    btn.addEventListener('mousedown',  e=>{e.preventDefault();handleAction(action);});
+};
+setupBtn('btn-up','rotate'); setupBtn('btn-left','left');
+setupBtn('btn-right','right'); setupBtn('btn-down','down');
+setupBtn('btn-hardDrop','hardDrop');
+
+document.getElementById('room-code-input').addEventListener('input', function(){
+    this.value = this.value.toUpperCase();
+});
+
+// ============================================================
+// 게임 시작
+// ============================================================
+function startGameUI() {
+    initCanvases(isMultiplayer);
+
+    document.getElementById('menu-screen').style.display = 'none';
+    document.getElementById('game-wrapper').style.display = 'flex';
+    document.getElementById('mobile-controls').style.display = 'flex';
+    document.getElementById('status-bar').innerText = isMultiplayer ? '대결 시작!' : '싱글플레이';
+
+    board=createMatrix(COLS,ROWS); opponentBoard=createMatrix(COLS,ROWS);
+    score=0; linesCleared=0; dropInterval=1000; pendingGarbage=0;
+    isIBlockCheat=false; isControlReversed=false; isOpponentReversed=false;
+    updateScore();
+
+    isGameOver=false; lastTime=0; nextPiece=null;
+    playerReset();
+    cancelAnimationFrame(animationId);
+    update();
+    clearInterval(syncIntervalId);
+    if (isMultiplayer) syncIntervalId = setInterval(syncBoard, 1500);
+}
+
+// ============================================================
+// URL 자동 입장
+// ============================================================
+window.addEventListener('load', () => {
+    const code = getRoomCodeFromURL();
+    if (code && code.length === 4) {
+        document.getElementById('room-code-input').value = code;
+        showToast('🎮 방에 자동 입장합니다!');
+        setTimeout(joinMultiRoom, 1000);
+    }
+});
+</script>
+</body>
+</html>
