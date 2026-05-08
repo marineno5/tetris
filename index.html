@@ -21,7 +21,13 @@
         --subtext: #7070a0;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        /* 더블탭 확대 방지 */
+        touch-action: manipulation;
+    }
 
     body {
         background-color: var(--bg);
@@ -89,6 +95,7 @@
         color: white;
         margin: 10px 0;
         width: 100%;
+        touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
     }
     .main-btn:active { opacity: 0.75; }
@@ -119,6 +126,7 @@
         color: var(--accent);
         letter-spacing: 4px;
         -webkit-appearance: none;
+        touch-action: manipulation;
     }
     .room-input:focus { border-color: var(--accent); }
 
@@ -132,6 +140,7 @@
         font-weight: 700;
         font-size: 16px;
         cursor: pointer;
+        touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
     }
     .join-btn:active { opacity: 0.75; }
@@ -166,6 +175,7 @@
         cursor: pointer;
         width: 100%;
         margin-bottom: 8px;
+        touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
     }
     .copy-btn:active { opacity: 0.75; }
@@ -228,6 +238,7 @@
         display: block;
         border: 1px solid var(--border);
         border-radius: 4px;
+        touch-action: none;
     }
 
     #opponent-panel { display: none; }
@@ -278,6 +289,7 @@
         border-radius: 10px;
         display: flex; justify-content: center; align-items: center;
         font-size: 18px; color: #8888aa;
+        touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
     }
     .d-btn:active { background: rgba(77,166,255,0.25); border-color: var(--accent); color: var(--accent); }
@@ -298,6 +310,7 @@
         display: flex; justify-content: center; align-items: center;
         text-align: center;
         line-height: 1.5;
+        touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
     }
     .btn-drop:active { background: rgba(255,77,141,0.3); }
@@ -309,6 +322,7 @@
         width: 80px; height: 80px;
         z-index: 9999;
         opacity: 0;
+        touch-action: none;
     }
     #cheat-left  { left: 0; }
     #cheat-right { right: 0; display: none; }
@@ -400,7 +414,7 @@
 
 <div class="cheat-indicator" id="cheat-left-indicator">I-BLOCK ON</div>
 <div class="cheat-indicator" id="cheat-right-indicator">REVERSE ON</div>
-<div id="reverse-notice">⚠ 조작 반전 중!</div>
+<div id="reverse-notice">&#9888; 조작 반전 중!</div>
 
 <div id="cheat-left"  class="cheat-zone"></div>
 <div id="cheat-right" class="cheat-zone"></div>
@@ -414,8 +428,8 @@
 
 ```
     <div id="main-buttons">
-        <button class="main-btn btn-single" onclick="startSinglePlayer()">👤 혼자 하기</button>
-        <button class="main-btn btn-create" onclick="createMultiRoom()">⚔️ 방 만들기</button>
+        <button class="main-btn btn-single" onclick="startSinglePlayer()">&#128100; 혼자 하기</button>
+        <button class="main-btn btn-create" onclick="createMultiRoom()">&#9876; 방 만들기</button>
         <hr class="divider">
         <div class="join-row">
             <input type="text" id="room-code-input" class="room-input" maxlength="4" placeholder="CODE">
@@ -427,7 +441,7 @@
         <p style="font-size:12px;color:var(--subtext);margin-bottom:4px;">방 코드</p>
         <div class="room-code-display" id="display-room-code">----</div>
         <p class="waiting-hint">친구에게 링크를 공유하거나<br>코드를 알려주세요!</p>
-        <button class="copy-btn" onclick="copyRoomLink()">🔗 링크 복사하기</button>
+        <button class="copy-btn" onclick="copyRoomLink()">&#128279; 링크 복사하기</button>
         <div class="loader"></div>
         <p style="font-size:11px;color:var(--subtext);">상대방 연결 대기 중...</p>
         <button class="main-btn btn-gray" onclick="goMainMenu()" style="margin-top:14px;">취소</button>
@@ -478,10 +492,10 @@
 
 <div class="mobile-controls" id="mobile-controls">
     <div class="d-pad">
-        <div class="d-btn d-up"    id="btn-up">▲</div>
-        <div class="d-btn d-left"  id="btn-left">◀</div>
-        <div class="d-btn d-down"  id="btn-down">▼</div>
-        <div class="d-btn d-right" id="btn-right">▶</div>
+        <div class="d-btn d-up"    id="btn-up">&#9650;</div>
+        <div class="d-btn d-left"  id="btn-left">&#9664;</div>
+        <div class="d-btn d-down"  id="btn-down">&#9660;</div>
+        <div class="d-btn d-right" id="btn-right">&#9654;</div>
     </div>
     <div class="action-pad">
         <div class="btn-drop" id="btn-hardDrop">HARD<br>DROP</div>
@@ -490,17 +504,33 @@
 
 <script>
 // ============================================================
+// 더블탭 확대 완전 차단
+// ============================================================
+var lastTouchEnd = 0;
+document.addEventListener('touchend', function(e) {
+    var now = Date.now();
+    if (now - lastTouchEnd < 300) {
+        e.preventDefault();
+    }
+    lastTouchEnd = now;
+}, { passive: false });
+
+document.addEventListener('touchstart', function(e) {
+    if (e.touches.length > 1) e.preventDefault();
+}, { passive: false });
+
+// ============================================================
 // 상수
 // ============================================================
-const COLS = 10, ROWS = 20;
+var COLS = 10, ROWS = 20;
 
-const COLORS = [
+var COLORS = [
     null,
     '#00FFFF','#3355FF','#FF8800','#FFFF00',
-    '#00FF44','#CC44FF','#FF3333','#555566',
+    '#00FF44','#CC44FF','#FF3333','#555566'
 ];
 
-const SHAPES = [
+var SHAPES = [
     [],
     [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]],
     [[2,0,0],[2,2,2],[0,0,0]],
@@ -508,53 +538,45 @@ const SHAPES = [
     [[4,4],[4,4]],
     [[0,5,5],[5,5,0],[0,0,0]],
     [[0,6,0],[6,6,6],[0,0,0]],
-    [[7,7,0],[0,7,7],[0,0,0]],
+    [[7,7,0],[0,7,7],[0,0,0]]
 ];
 
 // ============================================================
-// 캔버스 & 크기 계산
+// 캔버스
 // ============================================================
-const boardCanvas = document.getElementById('board');
-const ctx         = boardCanvas.getContext('2d');
-const nextCanvas  = document.getElementById('next');
-const ctxNext     = nextCanvas.getContext('2d');
-const oppCanvas   = document.getElementById('opponent-board');
-const ctxOpp      = oppCanvas.getContext('2d');
+var boardCanvas = document.getElementById('board');
+var ctx         = boardCanvas.getContext('2d');
+var nextCanvas  = document.getElementById('next');
+var ctxNext     = nextCanvas.getContext('2d');
+var oppCanvas   = document.getElementById('opponent-board');
+var ctxOpp      = oppCanvas.getContext('2d');
 
-let BLOCK = 28; // 기본값, initCanvases에서 재계산
+var BLOCK = 28;
 
 function calcBlock(isMulti) {
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const ctrlH  = 175; // 버튼 커진 만큼
-    const padV   = 12;
-    const padH   = 8;
-
-    const availH = vh - ctrlH - padV * 2;
-
-    // 싱글: 사이드패널 2개
-    // 멀티: 사이드패널 3개 (상대 포함)
-    const panelCount = isMulti ? 3 : 2;
-    const panelW = 58;
-    const gaps   = padH * (panelCount + 1);
-    const boardMaxW = vw - panelW * panelCount - gaps;
-
-    let b = Math.floor(Math.min(availH / ROWS, boardMaxW / COLS));
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+    var ctrlH  = 175;
+    var padV   = 12;
+    var padH   = 8;
+    var availH = vh - ctrlH - padV * 2;
+    var panelCount = isMulti ? 3 : 2;
+    var panelW = 58;
+    var gaps   = padH * (panelCount + 1);
+    var boardMaxW = vw - panelW * panelCount - gaps;
+    var b = Math.floor(Math.min(availH / ROWS, boardMaxW / COLS));
     return Math.max(b, 16);
 }
 
 function initCanvases(isMulti) {
     BLOCK = calcBlock(isMulti);
-
     boardCanvas.width  = BLOCK * COLS;
     boardCanvas.height = BLOCK * ROWS;
-
-    const ns = Math.max(Math.floor(BLOCK * 0.55) * 4, 48);
+    var ns = Math.max(Math.floor(BLOCK * 0.55) * 4, 48);
     nextCanvas.width  = ns;
     nextCanvas.height = ns;
-
     if (isMulti) {
-        const ob = Math.max(Math.floor(BLOCK * 0.4), 5);
+        var ob = Math.max(Math.floor(BLOCK * 0.4), 5);
         oppCanvas.width  = ob * COLS;
         oppCanvas.height = ob * ROWS;
     }
@@ -563,68 +585,73 @@ function initCanvases(isMulti) {
 // ============================================================
 // 게임 상태
 // ============================================================
-let board         = createMatrix(COLS, ROWS);
-let opponentBoard = createMatrix(COLS, ROWS);
-let player        = { pos:{x:0,y:0}, matrix:null };
-let nextPiece     = null;
+var board         = createMatrix(COLS, ROWS);
+var opponentBoard = createMatrix(COLS, ROWS);
+var player        = { pos:{x:0,y:0}, matrix:null };
+var nextPiece     = null;
 
-let score = 0, linesCleared = 0;
-let dropCounter = 0, dropInterval = 1000, lastTime = 0;
-let isGameOver = true, isMultiplayer = false, animationId;
-let syncIntervalId = null;
-let pendingGarbage = 0;
+var score = 0, linesCleared = 0;
+var dropCounter = 0, dropInterval = 1000, lastTime = 0;
+var isGameOver = true, isMultiplayer = false, animationId;
+var syncIntervalId = null;
+var pendingGarbage = 0;
 
-let isIBlockCheat      = false;
-let isOpponentReversed = false;
-let isControlReversed  = false;
+var isIBlockCheat      = false;
+var isOpponentReversed = false;
+var isControlReversed  = false;
 
 function createMatrix(w, h) {
-    return Array.from({length:h}, () => new Array(w).fill(0));
+    var m = [];
+    for (var i = 0; i < h; i++) m.push(new Array(w).fill(0));
+    return m;
 }
 
 // ============================================================
 // P2P
 // ============================================================
-let peer = null, conn = null, currentRoomCode = '';
+var peer = null, conn = null, currentRoomCode = '';
 
 function getRoomCodeFromURL() {
     try {
-        const p = new URLSearchParams(window.location.search);
-        const c = p.get('room');
+        var p = new URLSearchParams(window.location.search);
+        var c = p.get('room');
         return c ? c.toUpperCase() : null;
     } catch(e) { return null; }
 }
 
 function generateRoomCode() {
-    const ch = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    return Array.from({length:4}, () => ch[Math.floor(Math.random()*ch.length)]).join('');
+    var ch = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    var code = '';
+    for (var i = 0; i < 4; i++) code += ch[Math.floor(Math.random() * ch.length)];
+    return code;
 }
 
 function getRoomPeerId(code) { return 'marineno5-tetris-v2-' + code; }
 
 function showToast(msg, color) {
-    const t = document.getElementById('toast');
+    var t = document.getElementById('toast');
     t.innerText = msg;
     t.style.borderColor = color || 'var(--green)';
     t.style.color = color || 'var(--green)';
     t.classList.add('show');
     clearTimeout(t._t);
-    t._t = setTimeout(() => t.classList.remove('show'), 2500);
+    t._t = setTimeout(function() { t.classList.remove('show'); }, 2500);
 }
 
 function copyRoomLink() {
-    const url = 'https://marineno5.github.io/tetris/?room=' + currentRoomCode;
-    const doFallback = () => {
-        const el = document.createElement('textarea');
-        el.value = url; el.style.cssText = 'position:fixed;opacity:0';
+    var url = 'https://marineno5.github.io/tetris/?room=' + currentRoomCode;
+    var doFallback = function() {
+        var el = document.createElement('textarea');
+        el.value = url;
+        el.style.cssText = 'position:fixed;opacity:0';
         document.body.appendChild(el);
         el.focus(); el.select();
-        try { document.execCommand('copy'); showToast('🔗 링크 복사됨!'); }
+        try { document.execCommand('copy'); showToast('링크 복사됨!'); }
         catch(e) { showToast('복사 실패', 'var(--accent2)'); }
         document.body.removeChild(el);
     };
     if (navigator.clipboard) {
-        navigator.clipboard.writeText(url).then(() => showToast('🔗 링크 복사됨!')).catch(doFallback);
+        navigator.clipboard.writeText(url).then(function() { showToast('링크 복사됨!'); }).catch(doFallback);
     } else { doFallback(); }
 }
 
@@ -639,19 +666,18 @@ function createMultiRoom() {
     currentRoomCode = generateRoomCode();
     document.getElementById('status-bar').innerText = '서버 연결 중...';
     if (peer) { try { peer.destroy(); } catch(e){} }
-
     peer = new Peer(getRoomPeerId(currentRoomCode));
 
-    peer.on('open', () => {
+    peer.on('open', function() {
         document.getElementById('main-buttons').style.display = 'none';
         document.getElementById('waiting-room').style.display = 'block';
         document.getElementById('display-room-code').innerText = currentRoomCode;
         document.getElementById('status-bar').innerText = '상대를 기다립니다...';
     });
 
-    peer.on('connection', (c) => { conn = c; setupConnection(c); });
+    peer.on('connection', function(c) { conn = c; setupConnection(c); });
 
-    peer.on('error', (err) => {
+    peer.on('error', function(err) {
         if (err.type === 'unavailable-id') {
             goMainMenu(); setTimeout(createMultiRoom, 200);
         } else {
@@ -662,28 +688,28 @@ function createMultiRoom() {
 }
 
 function joinMultiRoom() {
-    const code = document.getElementById('room-code-input').value.trim().toUpperCase();
+    var code = document.getElementById('room-code-input').value.trim().toUpperCase();
     if (code.length !== 4) { showToast('4자리 코드를 입력하세요', 'var(--accent2)'); return; }
 
     document.getElementById('status-bar').innerText = '연결 중...';
     if (peer) { try { peer.destroy(); } catch(e){} }
     peer = new Peer();
 
-    peer.on('open', () => {
+    peer.on('open', function() {
         conn = peer.connect(getRoomPeerId(code), { reliable: true });
-        let opened = false;
+        var opened = false;
 
-        conn.on('open', () => {
+        conn.on('open', function() {
             opened = true;
             currentRoomCode = code;
             setupConnection(conn);
         });
 
-        conn.on('error', () => {
+        conn.on('error', function() {
             if (!opened) { showToast('연결 실패! 코드를 확인하세요', 'var(--accent2)'); goMainMenu(); }
         });
 
-        setTimeout(() => {
+        setTimeout(function() {
             if (!opened && !isMultiplayer) {
                 showToast('연결 실패! 코드를 확인하세요', 'var(--accent2)');
                 goMainMenu();
@@ -691,16 +717,16 @@ function joinMultiRoom() {
         }, 6000);
     });
 
-    peer.on('error', () => { showToast('방을 찾을 수 없습니다', 'var(--accent2)'); goMainMenu(); });
+    peer.on('error', function() { showToast('방을 찾을 수 없습니다', 'var(--accent2)'); goMainMenu(); });
 }
 
 function setupConnection(connection) {
     isMultiplayer = true;
 
-    connection.on('data', (data) => {
+    connection.on('data', function(data) {
         if      (data.type === 'board')      { opponentBoard = data.board; }
         else if (data.type === 'garbage')    { pendingGarbage += data.amount; }
-        else if (data.type === 'gameover')   { triggerGameOver('🏆 승리!'); }
+        else if (data.type === 'gameover')   { triggerGameOver('승리!'); }
         else if (data.type === 'reverse_on') {
             isControlReversed = true;
             document.getElementById('reverse-notice').style.display = 'block';
@@ -711,8 +737,11 @@ function setupConnection(connection) {
         }
     });
 
-    connection.on('close', () => {
-        if (!isGameOver) { showToast('상대방이 나갔습니다', 'var(--accent2)'); setTimeout(goMainMenu, 1500); }
+    connection.on('close', function() {
+        if (!isGameOver) {
+            showToast('상대방이 나갔습니다', 'var(--accent2)');
+            setTimeout(goMainMenu, 1500);
+        }
     });
 
     document.getElementById('opponent-panel').style.display = 'flex';
@@ -749,48 +778,47 @@ function drawBlock(context, px, py, colorIdx, bp, alpha) {
     context.fillStyle = COLORS[colorIdx];
     context.fillRect(px, py, bp, bp);
     context.globalAlpha = alpha * 0.3;
-    context.fillStyle = '#fff';
+    context.fillStyle = '#ffffff';
     context.fillRect(px, py, bp, bp * 0.14);
     context.fillRect(px, py, bp * 0.14, bp);
     context.globalAlpha = alpha * 0.2;
-    context.fillStyle = '#000';
+    context.fillStyle = '#000000';
     context.fillRect(px, py + bp * 0.86, bp, bp * 0.14);
     context.fillRect(px + bp * 0.86, py, bp * 0.14, bp);
     context.globalAlpha = 1;
 }
 
 function drawMatrix(matrix, ox, oy, context, bp, alpha) {
-    matrix.forEach((row, y) => {
-        row.forEach((val, x) => {
-            if (val) drawBlock(context, (ox+x)*bp, (oy+y)*bp, val, bp, alpha||1);
-        });
-    });
+    for (var y = 0; y < matrix.length; y++) {
+        for (var x = 0; x < matrix[y].length; x++) {
+            if (matrix[y][x]) drawBlock(context, (ox+x)*bp, (oy+y)*bp, matrix[y][x], bp, alpha||1);
+        }
+    }
 }
 
 function draw() {
-    const bp = BLOCK;
-    const bw = boardCanvas.width, bh = boardCanvas.height;
+    var bp = BLOCK;
+    var bw = boardCanvas.width, bh = boardCanvas.height;
 
     ctx.fillStyle = '#080810';
     ctx.fillRect(0, 0, bw, bh);
 
-    // 그리드
     ctx.strokeStyle = 'rgba(80,80,160,0.07)';
     ctx.lineWidth = 0.5;
-    for (let x=0;x<=COLS;x++){ctx.beginPath();ctx.moveTo(x*bp,0);ctx.lineTo(x*bp,bh);ctx.stroke();}
-    for (let y=0;y<=ROWS;y++){ctx.beginPath();ctx.moveTo(0,y*bp);ctx.lineTo(bw,y*bp);ctx.stroke();}
+    for (var x = 0; x <= COLS; x++) { ctx.beginPath(); ctx.moveTo(x*bp,0); ctx.lineTo(x*bp,bh); ctx.stroke(); }
+    for (var y = 0; y <= ROWS; y++) { ctx.beginPath(); ctx.moveTo(0,y*bp); ctx.lineTo(bw,y*bp); ctx.stroke(); }
 
     drawMatrix(board, 0, 0, ctx, bp, 1);
 
     if (player.matrix && !isGameOver) {
-        let gy = player.pos.y;
-        while (!collide(board,{matrix:player.matrix,pos:{x:player.pos.x,y:gy+1}})) gy++;
+        var gy = player.pos.y;
+        while (!collide(board, {matrix:player.matrix, pos:{x:player.pos.x, y:gy+1}})) gy++;
         drawMatrix(player.matrix, player.pos.x, gy, ctx, bp, 0.15);
         drawMatrix(player.matrix, player.pos.x, player.pos.y, ctx, bp, 1);
     }
 
     if (isMultiplayer) {
-        const ob = oppCanvas.width / COLS;
+        var ob = oppCanvas.width / COLS;
         ctxOpp.fillStyle = '#100008';
         ctxOpp.fillRect(0, 0, oppCanvas.width, oppCanvas.height);
         drawMatrix(opponentBoard, 0, 0, ctxOpp, ob, 1);
@@ -800,14 +828,14 @@ function draw() {
 }
 
 function drawNextPiece() {
-    const nw = nextCanvas.width, nh = nextCanvas.height;
+    var nw = nextCanvas.width, nh = nextCanvas.height;
     ctxNext.fillStyle = '#1a1a2e';
     ctxNext.fillRect(0, 0, nw, nh);
     if (!nextPiece) return;
-    const nb = Math.floor(Math.min(nw,nh) / 4);
-    const pw = nextPiece.matrix[0].length, ph = nextPiece.matrix.length;
-    const ox = Math.floor((nw/nb - pw)/2);
-    const oy = Math.floor((nh/nb - ph)/2);
+    var nb = Math.floor(Math.min(nw,nh) / 4);
+    var pw = nextPiece.matrix[0].length, ph = nextPiece.matrix.length;
+    var ox = Math.floor((nw/nb - pw)/2);
+    var oy = Math.floor((nh/nb - ph)/2);
     drawMatrix(nextPiece.matrix, ox, oy, ctxNext, nb, 1);
 }
 
@@ -815,28 +843,28 @@ function drawNextPiece() {
 // 게임 로직
 // ============================================================
 function randomPiece() {
-    const id = isIBlockCheat ? 1 : (Math.floor(Math.random()*7)+1);
-    return { matrix: SHAPES[id].map(r=>[...r]), typeId: id };
+    var id = isIBlockCheat ? 1 : (Math.floor(Math.random()*7)+1);
+    return { matrix: SHAPES[id].map(function(r){return r.slice();}), typeId: id };
 }
 
 function collide(board, player) {
-    const {matrix:m, pos:o} = player;
-    for (let y=0;y<m.length;y++)
-        for (let x=0;x<m[y].length;x++)
+    var m = player.matrix, o = player.pos;
+    for (var y = 0; y < m.length; y++)
+        for (var x = 0; x < m[y].length; x++)
             if (m[y][x] && (board[y+o.y] && board[y+o.y][x+o.x]) !== 0) return true;
     return false;
 }
 
 function merge(board, player) {
-    player.matrix.forEach((row,y) => row.forEach((val,x) => {
-        if (val) board[y+player.pos.y][x+player.pos.x] = val;
-    }));
+    for (var y = 0; y < player.matrix.length; y++)
+        for (var x = 0; x < player.matrix[y].length; x++)
+            if (player.matrix[y][x]) board[y+player.pos.y][x+player.pos.x] = player.matrix[y][x];
 }
 
 function arenaSweep() {
-    let n = 0;
-    for (let y=board.length-1; y>0; y--) {
-        if (board[y].every(v=>v!==0)) {
+    var n = 0;
+    for (var y = board.length-1; y > 0; y--) {
+        if (board[y].every(function(v){return v!==0;})) {
             board.splice(y,1); board.unshift(new Array(COLS).fill(0)); y++; n++;
         }
     }
@@ -845,7 +873,7 @@ function arenaSweep() {
         linesCleared += n;
         dropInterval = Math.max(100, 1000 - Math.floor(linesCleared/10)*80);
         updateScore();
-        if (isMultiplayer && n>=2) sendData({type:'garbage', amount:n-1});
+        if (isMultiplayer && n >= 2) sendData({type:'garbage', amount:n-1});
     }
     if (pendingGarbage > 0) applyGarbage();
 }
@@ -853,7 +881,7 @@ function arenaSweep() {
 function applyGarbage() {
     while (pendingGarbage > 0) {
         board.shift();
-        const row = new Array(COLS).fill(8);
+        var row = new Array(COLS).fill(8);
         row[Math.floor(Math.random()*COLS)] = 0;
         board.push(row);
         pendingGarbage--;
@@ -865,34 +893,34 @@ function syncBoard()   { sendData({type:'board', board:board}); }
 
 function playerDrop() {
     player.pos.y++;
-    if (collide(board,player)) {
+    if (collide(board, player)) {
         player.pos.y--;
-        merge(board,player); playerReset(); arenaSweep();
+        merge(board, player); playerReset(); arenaSweep();
         if (isMultiplayer) syncBoard();
     }
     dropCounter = 0;
 }
 
 function playerHardDrop() {
-    while (!collide(board,player)) player.pos.y++;
+    while (!collide(board, player)) player.pos.y++;
     player.pos.y--;
-    merge(board,player); playerReset(); arenaSweep();
+    merge(board, player); playerReset(); arenaSweep();
     dropCounter = 0;
     if (isMultiplayer) syncBoard();
 }
 
 function playerMove(dir) {
-    const d = isControlReversed ? -dir : dir;
+    var d = isControlReversed ? -dir : dir;
     player.pos.x += d;
-    if (collide(board,player)) player.pos.x -= d;
+    if (collide(board, player)) player.pos.x -= d;
 }
 
 function playerRotate() {
-    const saved = player.matrix.map(r=>[...r]);
-    const sx = player.pos.x;
+    var saved = player.matrix.map(function(r){return r.slice();});
+    var sx = player.pos.x;
     rotate(player.matrix);
-    let off = 1;
-    while (collide(board,player)) {
+    var off = 1;
+    while (collide(board, player)) {
         player.pos.x += off;
         off = -(off + (off>0?1:-1));
         if (Math.abs(off) > player.matrix[0].length) { player.matrix=saved; player.pos.x=sx; return; }
@@ -900,8 +928,11 @@ function playerRotate() {
 }
 
 function rotate(m) {
-    for (let y=0;y<m.length;y++) for (let x=0;x<y;x++) [m[x][y],m[y][x]]=[m[y][x],m[x][y]];
-    m.forEach(r=>r.reverse());
+    for (var y = 0; y < m.length; y++)
+        for (var x = 0; x < y; x++) {
+            var t = m[x][y]; m[x][y] = m[y][x]; m[y][x] = t;
+        }
+    m.forEach(function(r){r.reverse();});
 }
 
 function playerReset() {
@@ -910,8 +941,8 @@ function playerReset() {
     player.pos.y  = 0;
     player.pos.x  = Math.floor(COLS/2) - Math.floor(player.matrix[0].length/2);
     nextPiece = randomPiece();
-    if (collide(board,player)) {
-        triggerGameOver(isMultiplayer ? '💀 패배...' : 'GAME OVER');
+    if (collide(board, player)) {
+        triggerGameOver(isMultiplayer ? '패배...' : 'GAME OVER');
         if (isMultiplayer) sendData({type:'gameover'});
     }
 }
@@ -925,15 +956,16 @@ function triggerGameOver(msg) {
     isGameOver = true;
     cancelAnimationFrame(animationId);
     clearInterval(syncIntervalId);
-    const t = document.getElementById('game-result-text');
+    var t = document.getElementById('game-result-text');
     t.innerText = msg;
     t.style.color = msg.includes('승리') ? 'var(--accent)' : 'var(--accent2)';
     document.getElementById('gameOverScreen').style.display = 'block';
 }
 
-function update(time=0) {
+function update(time) {
+    if (!time) time = 0;
     if (isGameOver) return;
-    const dt = time - lastTime; lastTime = time;
+    var dt = time - lastTime; lastTime = time;
     dropCounter += dt;
     if (dropCounter > dropInterval) playerDrop();
     draw();
@@ -942,65 +974,63 @@ function update(time=0) {
 
 function handleAction(action) {
     if (isGameOver) return;
-    switch(action) {
-        case 'left':     playerMove(-1);   break;
-        case 'right':    playerMove(1);    break;
-        case 'down':     playerDrop();     break;
-        case 'rotate':   playerRotate();   break;
-        case 'hardDrop': playerHardDrop(); break;
-    }
+    if      (action === 'left')     playerMove(-1);
+    else if (action === 'right')    playerMove(1);
+    else if (action === 'down')     playerDrop();
+    else if (action === 'rotate')   playerRotate();
+    else if (action === 'hardDrop') playerHardDrop();
 }
 
 function flash(color, dur) {
-    const el = document.getElementById('flash-'+color);
+    var el = document.getElementById('flash-'+color);
     if (!el) return;
     el.classList.add('show');
-    setTimeout(()=>el.classList.remove('show'), dur||200);
+    setTimeout(function(){el.classList.remove('show');}, dur||200);
 }
 
 // ============================================================
 // 치트
 // ============================================================
-let leftTapCount=0, leftTapTimer=null;
+var leftTapCount=0, leftTapTimer=null;
 
 function toggleIBlockCheat() {
     if (isGameOver) return;
     isIBlockCheat = !isIBlockCheat;
-    const ind = document.getElementById('cheat-left-indicator');
+    var ind = document.getElementById('cheat-left-indicator');
     ind.innerText = isIBlockCheat ? 'I-BLOCK ON' : 'I-BLOCK OFF';
     ind.classList.toggle('active', isIBlockCheat);
     flash('blue');
     if (isIBlockCheat) { nextPiece = randomPiece(); drawNextPiece(); }
 }
 
-const handleLeftCheat = (e) => {
+var handleLeftCheat = function(e) {
     e.preventDefault(); e.stopPropagation();
     leftTapCount++;
     clearTimeout(leftTapTimer);
     if (leftTapCount >= 3) { toggleIBlockCheat(); leftTapCount = 0; }
-    else leftTapTimer = setTimeout(()=>{ leftTapCount=0; }, 800);
+    else leftTapTimer = setTimeout(function(){ leftTapCount=0; }, 800);
 };
 document.getElementById('cheat-left').addEventListener('touchstart', handleLeftCheat, {passive:false});
 document.getElementById('cheat-left').addEventListener('mousedown',  handleLeftCheat);
 
-let rightTapCount=0, rightTapTimer=null;
+var rightTapCount=0, rightTapTimer=null;
 
 function toggleReverseCheat() {
     if (isGameOver || !isMultiplayer) return;
     isOpponentReversed = !isOpponentReversed;
-    const ind = document.getElementById('cheat-right-indicator');
+    var ind = document.getElementById('cheat-right-indicator');
     ind.innerText = isOpponentReversed ? 'REVERSE ON' : 'REVERSE OFF';
     ind.classList.toggle('active', isOpponentReversed);
     sendData({type: isOpponentReversed ? 'reverse_on' : 'reverse_off'});
     flash('green');
 }
 
-const handleRightCheat = (e) => {
+var handleRightCheat = function(e) {
     e.preventDefault(); e.stopPropagation();
     rightTapCount++;
     clearTimeout(rightTapTimer);
     if (rightTapCount >= 3) { toggleReverseCheat(); rightTapCount = 0; }
-    else rightTapTimer = setTimeout(()=>{ rightTapCount=0; }, 800);
+    else rightTapTimer = setTimeout(function(){ rightTapCount=0; }, 800);
 };
 document.getElementById('cheat-right').addEventListener('touchstart', handleRightCheat, {passive:false});
 document.getElementById('cheat-right').addEventListener('mousedown',  handleRightCheat);
@@ -1008,17 +1038,20 @@ document.getElementById('cheat-right').addEventListener('mousedown',  handleRigh
 // ============================================================
 // 컨트롤러
 // ============================================================
-document.addEventListener('keydown', e => {
-    if ([32,37,38,39,40].includes(e.keyCode)) e.preventDefault();
-    const map = {37:'left',39:'right',40:'down',38:'rotate',32:'hardDrop'};
-    if (map[e.keyCode]) handleAction(map[e.keyCode]);
+document.addEventListener('keydown', function(e) {
+    if ([32,37,38,39,40].indexOf(e.keyCode) > -1) e.preventDefault();
+    if      (e.keyCode===37) handleAction('left');
+    else if (e.keyCode===39) handleAction('right');
+    else if (e.keyCode===40) handleAction('down');
+    else if (e.keyCode===38) handleAction('rotate');
+    else if (e.keyCode===32) handleAction('hardDrop');
 });
 
-const setupBtn = (id, action) => {
-    const btn = document.getElementById(id); if (!btn) return;
-    btn.addEventListener('touchstart', e=>{e.preventDefault();handleAction(action);},{passive:false});
-    btn.addEventListener('mousedown',  e=>{e.preventDefault();handleAction(action);});
-};
+function setupBtn(id, action) {
+    var btn = document.getElementById(id); if (!btn) return;
+    btn.addEventListener('touchstart', function(e){e.preventDefault();handleAction(action);},{passive:false});
+    btn.addEventListener('mousedown',  function(e){e.preventDefault();handleAction(action);});
+}
 setupBtn('btn-up','rotate'); setupBtn('btn-left','left');
 setupBtn('btn-right','right'); setupBtn('btn-down','down');
 setupBtn('btn-hardDrop','hardDrop');
@@ -1054,11 +1087,11 @@ function startGameUI() {
 // ============================================================
 // URL 자동 입장
 // ============================================================
-window.addEventListener('load', () => {
-    const code = getRoomCodeFromURL();
+window.addEventListener('load', function() {
+    var code = getRoomCodeFromURL();
     if (code && code.length === 4) {
         document.getElementById('room-code-input').value = code;
-        showToast('🎮 방에 자동 입장합니다!');
+        showToast('방에 자동 입장합니다!');
         setTimeout(joinMultiRoom, 1000);
     }
 });
