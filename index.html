@@ -267,7 +267,7 @@
             line-height: 1.8;
         }
 
-        /* ===== 모바일 컨트롤 ===== */
+        /* ===== 모바일 컨트롤 (크기 및 배치 개선) ===== */
         .mobile-controls {
             display: none;
             justify-content: space-between;
@@ -278,36 +278,34 @@
             flex-shrink: 0;
         }
 
-        .d-pad { position: relative; width: 156px; height: 156px; }
+        .d-pad { position: relative; width: 190px; height: 190px; }
         .d-btn {
             position: absolute;
-            width: 50px; height: 50px;
+            width: 62px; height: 62px;
             background: rgba(255,255,255,0.06);
             border: 1px solid #333355;
-            border-radius: 10px;
+            border-radius: 12px;
             display: flex; justify-content: center; align-items: center;
-            font-size: 18px; color: #8888aa;
+            font-size: 22px; color: #8888aa;
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
         }
         .d-btn:active { background: rgba(77,166,255,0.25); border-color: var(--accent); color: var(--accent); }
-        .d-up    { top: 0;     left: 53px; }
-        .d-left  { top: 53px; left: 0;    }
-        .d-down  { top: 106px; left: 53px; }
-        .d-right { top: 53px; left: 106px; }
+        .d-up    { top: 0;      left: 64px; }
+        .d-left  { top: 64px;   left: 0;    }
+        .d-down  { top: 128px;  left: 64px; }
+        .d-right { top: 64px;   left: 128px; }
 
-        .action-pad { display: flex; justify-content: center; align-items: center; width: 156px; height: 156px; }
+        .action-pad { display: flex; justify-content: center; align-items: center; width: 190px; height: 190px; }
         .btn-drop {
-            width: 100px; height: 100px;
+            width: 110px; height: 110px;
             border-radius: 50%;
             background: rgba(255,77,141,0.1);
             border: 2px solid var(--accent2);
             color: var(--accent2);
-            font-family: 'Press Start 2P', monospace;
-            font-size: 10px;
+            font-size: 40px;
             display: flex; justify-content: center; align-items: center;
             text-align: center;
-            line-height: 1.5;
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
         }
@@ -415,7 +413,6 @@
 <div id="cheat-left"  class="cheat-zone"></div>
 <div id="cheat-right" class="cheat-zone"></div>
 
-<!-- 메뉴 -->
 <div id="menu-screen">
     <div class="menu-box">
         <div class="menu-title">TETRIS</div>
@@ -443,7 +440,6 @@
     </div>
 </div>
 
-<!-- 게임 -->
 <div class="game-wrapper" id="game-wrapper">
     <div class="side-panel" id="opponent-panel">
         <div class="box">
@@ -476,7 +472,6 @@
     </div>
 </div>
 
-<!-- 모바일 컨트롤 -->
 <div class="mobile-controls" id="mobile-controls">
     <div class="d-pad">
         <div class="d-btn d-up"    id="btn-up">&#9650;</div>
@@ -485,7 +480,7 @@
         <div class="d-btn d-right" id="btn-right">&#9654;</div>
     </div>
     <div class="action-pad">
-        <div class="btn-drop" id="btn-hardDrop">HARD<br>DROP</div>
+        <div class="btn-drop" id="btn-hardDrop">⤓</div>
     </div>
 </div>
 
