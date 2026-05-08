@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -9,399 +8,396 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+KR:wght@400;700&display=swap');
 
-```
-    :root {
-        --bg: #0f0f17;
-        --panel: #1a1a2e;
-        --border: #2a2a4a;
-        --accent: #4da6ff;
-        --accent2: #ff4d8d;
-        --green: #00ff88;
-        --text: #e0e0ff;
-        --subtext: #7070a0;
-    }
+        :root {
+            --bg: #0f0f17;
+            --panel: #1a1a2e;
+            --border: #2a2a4a;
+            --accent: #4da6ff;
+            --accent2: #ff4d8d;
+            --green: #00ff88;
+            --text: #e0e0ff;
+            --subtext: #7070a0;
+        }
 
-    * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        /* 더블탭 확대 방지 */
-        touch-action: manipulation;
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            /* 더블탭 확대 방지 */
+            touch-action: manipulation;
+        }
 
-    body {
-        background-color: var(--bg);
-        color: var(--text);
-        font-family: 'Noto Sans KR', sans-serif;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        width: 100vw;
-        height: 100vh;
-        height: 100dvh;
-        overflow: hidden;
-        touch-action: none;
-        -webkit-user-select: none;
-        user-select: none;
-    }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Noto Sans KR', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
 
-    /* ===== 메뉴 ===== */
-    #menu-screen {
-        position: fixed;
-        inset: 0;
-        background: var(--bg);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        z-index: 200;
-        padding: 20px;
-    }
+        /* ===== 메뉴 ===== */
+        #menu-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            padding: 20px;
+        }
 
-    .menu-box {
-        background: var(--panel);
-        padding: 28px 24px;
-        border-radius: 16px;
-        border: 1px solid var(--border);
-        text-align: center;
-        width: 100%;
-        max-width: 320px;
-    }
+        .menu-box {
+            background: var(--panel);
+            padding: 28px 24px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            text-align: center;
+            width: 100%;
+            max-width: 320px;
+        }
 
-    .menu-title {
-        font-family: 'Press Start 2P', monospace;
-        font-size: 16px;
-        color: var(--accent);
-        margin-bottom: 6px;
-        text-shadow: 0 0 20px rgba(77,166,255,0.5);
-    }
+        .menu-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 16px;
+            color: var(--accent);
+            margin-bottom: 6px;
+            text-shadow: 0 0 20px rgba(77,166,255,0.5);
+        }
 
-    .menu-sub {
-        font-size: 11px;
-        color: var(--subtext);
-        margin-bottom: 24px;
-    }
+        .menu-sub {
+            font-size: 11px;
+            color: var(--subtext);
+            margin-bottom: 24px;
+        }
 
-    .main-btn {
-        display: block;
-        padding: 18px;
-        font-size: 18px;
-        font-family: 'Noto Sans KR', sans-serif;
-        font-weight: 700;
-        cursor: pointer;
-        border: none;
-        border-radius: 12px;
-        color: white;
-        margin: 10px 0;
-        width: 100%;
-        touch-action: manipulation;
-        -webkit-tap-highlight-color: transparent;
-    }
-    .main-btn:active { opacity: 0.75; }
-    .btn-single { background: linear-gradient(135deg, #ff8c00, #ffd700); color: #1a1a00; }
-    .btn-create { background: linear-gradient(135deg, var(--accent), #7b5ea7); }
-    .btn-gray   { background: #2a2a3a; font-size: 14px; padding: 12px; color: #aaa; }
+        .main-btn {
+            display: block;
+            padding: 18px;
+            font-size: 18px;
+            font-family: 'Noto Sans KR', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            border-radius: 12px;
+            color: white;
+            margin: 10px 0;
+            width: 100%;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .main-btn:active { opacity: 0.75; }
+        .btn-single { background: linear-gradient(135deg, #ff8c00, #ffd700); color: #1a1a00; }
+        .btn-create { background: linear-gradient(135deg, var(--accent), #7b5ea7); }
+        .btn-gray   { background: #2a2a3a; font-size: 14px; padding: 12px; color: #aaa; }
 
-    .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+        .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
-    .join-row {
-        display: flex;
-        gap: 8px;
-        width: 100%;
-    }
+        .join-row {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
 
-    .room-input {
-        flex: 1;
-        min-width: 0;
-        padding: 12px 8px;
-        font-size: 20px;
-        font-family: 'Press Start 2P', monospace;
-        text-transform: uppercase;
-        text-align: center;
-        border-radius: 8px;
-        border: 2px solid var(--border);
-        outline: none;
-        background: #0f0f1f;
-        color: var(--accent);
-        letter-spacing: 4px;
-        -webkit-appearance: none;
-        touch-action: manipulation;
-    }
-    .room-input:focus { border-color: var(--accent); }
+        .room-input {
+            flex: 1;
+            min-width: 0;
+            padding: 12px 8px;
+            font-size: 20px;
+            font-family: 'Press Start 2P', monospace;
+            text-transform: uppercase;
+            text-align: center;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+            outline: none;
+            background: #0f0f1f;
+            color: var(--accent);
+            letter-spacing: 4px;
+            -webkit-appearance: none;
+            touch-action: manipulation;
+        }
+        .room-input:focus { border-color: var(--accent); }
 
-    .join-btn {
-        flex-shrink: 0;
-        padding: 16px 18px;
-        background: var(--accent2);
-        border: none;
-        border-radius: 12px;
-        color: white;
-        font-weight: 700;
-        font-size: 16px;
-        cursor: pointer;
-        touch-action: manipulation;
-        -webkit-tap-highlight-color: transparent;
-    }
-    .join-btn:active { opacity: 0.75; }
+        .join-btn {
+            flex-shrink: 0;
+            padding: 16px 18px;
+            background: var(--accent2);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .join-btn:active { opacity: 0.75; }
 
-    #waiting-room { display: none; }
+        #waiting-room { display: none; }
 
-    .room-code-display {
-        font-family: 'Press Start 2P', monospace;
-        font-size: 26px;
-        color: var(--green);
-        letter-spacing: 8px;
-        margin: 12px 0;
-        text-shadow: 0 0 20px rgba(0,255,136,0.5);
-    }
+        .room-code-display {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 26px;
+            color: var(--green);
+            letter-spacing: 8px;
+            margin: 12px 0;
+            text-shadow: 0 0 20px rgba(0,255,136,0.5);
+        }
 
-    .waiting-hint {
-        font-size: 12px;
-        color: var(--subtext);
-        margin-bottom: 16px;
-        line-height: 1.7;
-    }
+        .waiting-hint {
+            font-size: 12px;
+            color: var(--subtext);
+            margin-bottom: 16px;
+            line-height: 1.7;
+        }
 
-    .copy-btn {
-        display: block;
-        padding: 12px;
-        background: #1e3a2a;
-        border: 1px solid var(--green);
-        border-radius: 10px;
-        color: var(--green);
-        font-weight: 700;
-        font-size: 14px;
-        cursor: pointer;
-        width: 100%;
-        margin-bottom: 8px;
-        touch-action: manipulation;
-        -webkit-tap-highlight-color: transparent;
-    }
-    .copy-btn:active { opacity: 0.75; }
+        .copy-btn {
+            display: block;
+            padding: 12px;
+            background: #1e3a2a;
+            border: 1px solid var(--green);
+            border-radius: 10px;
+            color: var(--green);
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 8px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .copy-btn:active { opacity: 0.75; }
 
-    .loader {
-        margin: 14px auto;
-        width: 26px; height: 26px;
-        border: 3px solid var(--border);
-        border-top: 3px solid var(--accent);
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+        .loader {
+            margin: 14px auto;
+            width: 26px; height: 26px;
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ===== 게임 화면 ===== */
-    .game-wrapper {
-        display: none;
-        flex-direction: row;
-        gap: 8px;
-        align-items: flex-start;
-        justify-content: center;
-        width: 100vw;
-        padding: 4px;
-        flex-shrink: 0;
-    }
+        /* ===== 게임 화면 ===== */
+        .game-wrapper {
+            display: none;
+            flex-direction: row;
+            gap: 8px;
+            align-items: flex-start;
+            justify-content: center;
+            width: 100vw;
+            padding: 4px;
+            flex-shrink: 0;
+        }
 
-    .side-panel {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        flex-shrink: 0;
-    }
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-shrink: 0;
+        }
 
-    .box {
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 8px 6px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
+        .box {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
 
-    .box-title {
-        font-family: 'Press Start 2P', monospace;
-        font-size: 6px;
-        margin-bottom: 6px;
-        color: var(--subtext);
-        letter-spacing: 1px;
-    }
+        .box-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 6px;
+            margin-bottom: 6px;
+            color: var(--subtext);
+            letter-spacing: 1px;
+        }
 
-    .stats-value {
-        font-family: 'Press Start 2P', monospace;
-        font-size: 10px;
-        color: var(--accent);
-    }
+        .stats-value {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            color: var(--accent);
+        }
 
-    #board {
-        display: block;
-        border: 1px solid var(--border);
-        border-radius: 4px;
-        touch-action: none;
-    }
+        #board {
+            display: block;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            touch-action: none;
+        }
 
-    #opponent-panel { display: none; }
-    #opponent-board {
-        display: block;
-        border: 1px solid #552233;
-        border-radius: 4px;
-    }
+        #opponent-panel { display: none; }
+        #opponent-board {
+            display: block;
+            border: 1px solid #552233;
+            border-radius: 4px;
+        }
 
-    .game-over {
-        position: absolute;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(10,10,20,0.95);
-        padding: 20px;
-        border-radius: 14px;
-        text-align: center;
-        display: none;
-        border: 1px solid var(--border);
-        z-index: 100;
-        white-space: nowrap;
-    }
+        .game-over {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10,10,20,0.95);
+            padding: 20px;
+            border-radius: 14px;
+            text-align: center;
+            display: none;
+            border: 1px solid var(--border);
+            z-index: 100;
+            white-space: nowrap;
+        }
 
-    .game-result-text {
-        font-family: 'Press Start 2P', monospace;
-        font-size: 12px;
-        margin-bottom: 16px;
-        line-height: 1.8;
-    }
+        .game-result-text {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 12px;
+            margin-bottom: 16px;
+            line-height: 1.8;
+        }
 
-    /* ===== 모바일 컨트롤 ===== */
-    .mobile-controls {
-        display: none;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        padding: 0 16px;
-        margin-top: 8px;
-        flex-shrink: 0;
-    }
+        /* ===== 모바일 컨트롤 ===== */
+        .mobile-controls {
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0 16px;
+            margin-top: 8px;
+            flex-shrink: 0;
+        }
 
-    .d-pad { position: relative; width: 156px; height: 156px; }
-    .d-btn {
-        position: absolute;
-        width: 50px; height: 50px;
-        background: rgba(255,255,255,0.06);
-        border: 1px solid #333355;
-        border-radius: 10px;
-        display: flex; justify-content: center; align-items: center;
-        font-size: 18px; color: #8888aa;
-        touch-action: manipulation;
-        -webkit-tap-highlight-color: transparent;
-    }
-    .d-btn:active { background: rgba(77,166,255,0.25); border-color: var(--accent); color: var(--accent); }
-    .d-up    { top: 0;     left: 53px; }
-    .d-left  { top: 53px; left: 0;    }
-    .d-down  { top: 106px; left: 53px; }
-    .d-right { top: 53px; left: 106px; }
+        .d-pad { position: relative; width: 156px; height: 156px; }
+        .d-btn {
+            position: absolute;
+            width: 50px; height: 50px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid #333355;
+            border-radius: 10px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 18px; color: #8888aa;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .d-btn:active { background: rgba(77,166,255,0.25); border-color: var(--accent); color: var(--accent); }
+        .d-up    { top: 0;     left: 53px; }
+        .d-left  { top: 53px; left: 0;    }
+        .d-down  { top: 106px; left: 53px; }
+        .d-right { top: 53px; left: 106px; }
 
-    .action-pad { display: flex; justify-content: center; align-items: center; width: 156px; height: 156px; }
-    .btn-drop {
-        width: 100px; height: 100px;
-        border-radius: 50%;
-        background: rgba(255,77,141,0.1);
-        border: 2px solid var(--accent2);
-        color: var(--accent2);
-        font-family: 'Press Start 2P', monospace;
-        font-size: 10px;
-        display: flex; justify-content: center; align-items: center;
-        text-align: center;
-        line-height: 1.5;
-        touch-action: manipulation;
-        -webkit-tap-highlight-color: transparent;
-    }
-    .btn-drop:active { background: rgba(255,77,141,0.3); }
+        .action-pad { display: flex; justify-content: center; align-items: center; width: 156px; height: 156px; }
+        .btn-drop {
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            background: rgba(255,77,141,0.1);
+            border: 2px solid var(--accent2);
+            color: var(--accent2);
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            display: flex; justify-content: center; align-items: center;
+            text-align: center;
+            line-height: 1.5;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn-drop:active { background: rgba(255,77,141,0.3); }
 
-    /* ===== 치트 존 ===== */
-    .cheat-zone {
-        position: fixed;
-        top: 0;
-        width: 80px; height: 80px;
-        z-index: 9999;
-        opacity: 0;
-        touch-action: none;
-    }
-    #cheat-left  { left: 0; }
-    #cheat-right { right: 0; display: none; }
+        /* ===== 치트 존 ===== */
+        .cheat-zone {
+            position: fixed;
+            top: 0;
+            width: 80px; height: 80px;
+            z-index: 9999;
+            opacity: 0;
+            touch-action: none;
+        }
+        #cheat-left  { left: 0; }
+        #cheat-right { right: 0; display: none; }
 
-    .cheat-indicator {
-        position: fixed;
-        top: 10px;
-        font-family: 'Press Start 2P', monospace;
-        font-size: 7px;
-        padding: 4px 8px;
-        border-radius: 4px;
-        z-index: 1000;
-        opacity: 0;
-        transition: opacity 0.3s;
-        pointer-events: none;
-    }
-    #cheat-left-indicator  { left: 10px;  background: rgba(0,255,136,0.15);  color: var(--green);   border: 1px solid var(--green); }
-    #cheat-right-indicator { right: 10px; background: rgba(255,77,141,0.15); color: var(--accent2); border: 1px solid var(--accent2); }
-    .cheat-indicator.active { opacity: 1; }
+        .cheat-indicator {
+            position: fixed;
+            top: 10px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 7px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        #cheat-left-indicator  { left: 10px;  background: rgba(0,255,136,0.15);  color: var(--green);   border: 1px solid var(--green); }
+        #cheat-right-indicator { right: 10px; background: rgba(255,77,141,0.15); color: var(--accent2); border: 1px solid var(--accent2); }
+        .cheat-indicator.active { opacity: 1; }
 
-    .flash-overlay {
-        position: fixed; inset: 0;
-        pointer-events: none;
-        z-index: 998;
-        opacity: 0;
-        transition: opacity 0.15s;
-    }
-    .flash-overlay.show { opacity: 1; }
+        .flash-overlay {
+            position: fixed; inset: 0;
+            pointer-events: none;
+            z-index: 998;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+        .flash-overlay.show { opacity: 1; }
 
-    #reverse-notice {
-        position: fixed;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        font-family: 'Press Start 2P', monospace;
-        font-size: 10px;
-        color: var(--accent2);
-        background: rgba(255,77,141,0.15);
-        border: 1px solid var(--accent2);
-        padding: 8px 14px;
-        border-radius: 8px;
-        z-index: 500;
-        display: none;
-        animation: blink 1s infinite;
-        pointer-events: none;
-        white-space: nowrap;
-    }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        #reverse-notice {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            color: var(--accent2);
+            background: rgba(255,77,141,0.15);
+            border: 1px solid var(--accent2);
+            padding: 8px 14px;
+            border-radius: 8px;
+            z-index: 500;
+            display: none;
+            animation: blink 1s infinite;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    #toast {
-        position: fixed;
-        bottom: 40px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: var(--panel);
-        border: 1px solid var(--green);
-        color: var(--green);
-        font-size: 13px;
-        font-weight: 700;
-        padding: 10px 20px;
-        border-radius: 20px;
-        z-index: 9999;
-        opacity: 0;
-        transition: opacity 0.3s;
-        white-space: nowrap;
-        pointer-events: none;
-    }
-    #toast.show { opacity: 1; }
+        #toast {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--panel);
+            border: 1px solid var(--green);
+            color: var(--green);
+            font-size: 13px;
+            font-weight: 700;
+            padding: 10px 20px;
+            border-radius: 20px;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+        #toast.show { opacity: 1; }
 
-    #status-bar {
-        position: fixed;
-        bottom: 8px;
-        font-size: 10px;
-        color: var(--subtext);
-        z-index: 10;
-        pointer-events: none;
-    }
-</style>
-```
-
+        #status-bar {
+            position: fixed;
+            bottom: 8px;
+            font-size: 10px;
+            color: var(--subtext);
+            z-index: 10;
+            pointer-events: none;
+        }
+    </style>
 </head>
 <body>
 
@@ -420,39 +416,34 @@
 <div id="cheat-right" class="cheat-zone"></div>
 
 <!-- 메뉴 -->
-
 <div id="menu-screen">
     <div class="menu-box">
         <div class="menu-title">TETRIS</div>
         <div class="menu-sub">주인님의 테트리스 v2.0</div>
 
-```
-    <div id="main-buttons">
-        <button class="main-btn btn-single" onclick="startSinglePlayer()">&#128100; 혼자 하기</button>
-        <button class="main-btn btn-create" onclick="createMultiRoom()">&#9876; 방 만들기</button>
-        <hr class="divider">
-        <div class="join-row">
-            <input type="text" id="room-code-input" class="room-input" maxlength="4" placeholder="CODE">
-            <button class="join-btn" onclick="joinMultiRoom()">입장</button>
+        <div id="main-buttons">
+            <button class="main-btn btn-single" onclick="startSinglePlayer()">&#128100; 혼자 하기</button>
+            <button class="main-btn btn-create" onclick="createMultiRoom()">&#9876; 방 만들기</button>
+            <hr class="divider">
+            <div class="join-row">
+                <input type="text" id="room-code-input" class="room-input" maxlength="4" placeholder="CODE">
+                <button class="join-btn" onclick="joinMultiRoom()">입장</button>
+            </div>
+        </div>
+
+        <div id="waiting-room">
+            <p style="font-size:12px;color:var(--subtext);margin-bottom:4px;">방 코드</p>
+            <div class="room-code-display" id="display-room-code">----</div>
+            <p class="waiting-hint">친구에게 링크를 공유하거나<br>코드를 알려주세요!</p>
+            <button class="copy-btn" onclick="copyRoomLink()">&#128279; 링크 복사하기</button>
+            <div class="loader"></div>
+            <p style="font-size:11px;color:var(--subtext);">상대방 연결 대기 중...</p>
+            <button class="main-btn btn-gray" onclick="goMainMenu()" style="margin-top:14px;">취소</button>
         </div>
     </div>
-
-    <div id="waiting-room">
-        <p style="font-size:12px;color:var(--subtext);margin-bottom:4px;">방 코드</p>
-        <div class="room-code-display" id="display-room-code">----</div>
-        <p class="waiting-hint">친구에게 링크를 공유하거나<br>코드를 알려주세요!</p>
-        <button class="copy-btn" onclick="copyRoomLink()">&#128279; 링크 복사하기</button>
-        <div class="loader"></div>
-        <p style="font-size:11px;color:var(--subtext);">상대방 연결 대기 중...</p>
-        <button class="main-btn btn-gray" onclick="goMainMenu()" style="margin-top:14px;">취소</button>
-    </div>
-</div>
-```
-
 </div>
 
 <!-- 게임 -->
-
 <div class="game-wrapper" id="game-wrapper">
     <div class="side-panel" id="opponent-panel">
         <div class="box">
@@ -461,35 +452,31 @@
         </div>
     </div>
 
-```
-<div style="position:relative;flex-shrink:0;">
-    <canvas id="board"></canvas>
-    <div id="gameOverScreen" class="game-over">
-        <div class="game-result-text" id="game-result-text">GAME OVER</div>
-        <button class="main-btn btn-gray" onclick="goMainMenu()" style="width:auto;padding:10px 20px;font-size:12px;">메인 메뉴</button>
+    <div style="position:relative;flex-shrink:0;">
+        <canvas id="board"></canvas>
+        <div id="gameOverScreen" class="game-over">
+            <div class="game-result-text" id="game-result-text">GAME OVER</div>
+            <button class="main-btn btn-gray" onclick="goMainMenu()" style="width:auto;padding:10px 20px;font-size:12px;">메인 메뉴</button>
+        </div>
     </div>
-</div>
 
-<div class="side-panel" id="my-panel">
-    <div class="box">
-        <div class="box-title">NEXT</div>
-        <canvas id="next"></canvas>
+    <div class="side-panel" id="my-panel">
+        <div class="box">
+            <div class="box-title">NEXT</div>
+            <canvas id="next"></canvas>
+        </div>
+        <div class="box">
+            <div class="box-title">SCORE</div>
+            <div id="score" class="stats-value">0</div>
+        </div>
+        <div class="box">
+            <div class="box-title">LINES</div>
+            <div id="lines" class="stats-value">0</div>
+        </div>
     </div>
-    <div class="box">
-        <div class="box-title">SCORE</div>
-        <div id="score" class="stats-value">0</div>
-    </div>
-    <div class="box">
-        <div class="box-title">LINES</div>
-        <div id="lines" class="stats-value">0</div>
-    </div>
-</div>
-```
-
 </div>
 
 <!-- 모바일 컨트롤 -->
-
 <div class="mobile-controls" id="mobile-controls">
     <div class="d-pad">
         <div class="d-btn d-up"    id="btn-up">&#9650;</div>
@@ -1096,6 +1083,5 @@ window.addEventListener('load', function() {
     }
 });
 </script>
-
 </body>
 </html>
